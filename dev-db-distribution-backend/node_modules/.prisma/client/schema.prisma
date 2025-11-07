@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model Job {
+  Id          String     @id(map: "PK_Job") @default(dbgenerated("newid()"), map: "DF__Job__Id__4316F928") @db.UniqueIdentifier
+  Ticket      String     @db.NVarChar(255)
+  Server      String     @db.NVarChar(255)
+  Database    String     @db.NVarChar(255)
+  RequestedBy String     @db.NVarChar(255)
+  Status      String     @default("PENDING", map: "DF__Job__Status__440B1D61") @db.NVarChar(50)
+  BlobPath    String?    @db.NVarChar(1024)
+  Etag        String?    @db.NVarChar(255)
+  Sha256      String?    @db.NVarChar(64)
+  Error       String?    @db.NVarChar(Max)
+  CreatedAt   DateTime   @default(dbgenerated("sysutcdatetime()"), map: "DF__Job__CreatedAt__44FF419A")
+  UpdatedAt   DateTime   @default(dbgenerated("sysutcdatetime()"), map: "DF__Job__UpdatedAt__45F365D3")
+  CompletedAt DateTime?
+  Download    Download[]
+
+  @@index([Status, CreatedAt], map: "IX_Job_Status_CreatedAt")
+  @@index([Ticket], map: "IX_Job_Ticket")
+}
+
+model Download {
+  Id           String   @id(map: "PK_Download") @default(dbgenerated("newid()"), map: "DF__Download__Id__48CFD27E") @db.UniqueIdentifier
+  JobId        String   @db.UniqueIdentifier
+  DownloadedBy String   @db.NVarChar(255)
+  IpAddress    String?  @db.NVarChar(64)
+  UserAgent    String?  @db.NVarChar(512)
+  When         DateTime @default(dbgenerated("sysutcdatetime()"), map: "DF__Download__When__49C3F6B7")
+  Success      Boolean  @default(true, map: "DF__Download__Succes__4AB81AF0")
+  Job          Job      @relation(fields: [JobId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Download_Job")
+
+  @@index([JobId, When], map: "IX_Download_JobId_When")
+}
+
+model ServerReg {
+  Id          String        @id(map: "PK_ServerReg") @default(dbgenerated("newid()"), map: "DF__ServerReg__Id__37A5467C") @db.UniqueIdentifier
+  Name        String        @db.NVarChar(255)
+  Dns         String        @unique(map: "UQ_ServerReg_Dns") @db.NVarChar(255)
+  IsActive    Boolean       @default(true, map: "DF__ServerReg__IsAct__38996AB5")
+  CreatedAt   DateTime      @default(dbgenerated("sysutcdatetime()"), map: "DF__ServerReg__Creat__398D8EEE")
+  DatabaseReg DatabaseReg[]
+}
+
+model DatabaseReg {
+  Id        String    @id(map: "PK_DatabaseReg") @default(dbgenerated("newid()"), map: "DF__DatabaseReg__Id__3D5E1FD2") @db.UniqueIdentifier
+  ServerId  String    @db.UniqueIdentifier
+  DbName    String    @db.NVarChar(255)
+  IsActive  Boolean   @default(true, map: "DF__DatabaseR__IsAct__3E52440B")
+  CreatedAt DateTime  @default(dbgenerated("sysutcdatetime()"), map: "DF__DatabaseR__Creat__3F466844")
+  ServerReg ServerReg @relation(fields: [ServerId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_DatabaseReg_ServerReg")
+
+  @@unique([ServerId, DbName], map: "UQ_DatabaseReg_Server_DbName")
+}

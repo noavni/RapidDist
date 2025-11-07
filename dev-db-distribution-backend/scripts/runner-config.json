@@ -1,0 +1,10 @@
+{
+  "apiBase": "http://localhost:8080",
+  "apiToken": "8f3c7a1e5b92d4f0c61ab8e3f74d29c0e5a4b9d3c78f210b6e4d9f2a1c3e7b8",
+  "serverDns": "localhost",
+  "sqlInstance": "ROTEST10",
+  "localBackupDir": "C:\\backups",
+  "azCopyPath": "C:\\Program Files (x86)\\Microsoft SDKs\\Azure\\AzCopy\\AzCopy.exe",
+  "containerPrefix": "raw-backups",
+  "cleanupAfterUpload": true
+}

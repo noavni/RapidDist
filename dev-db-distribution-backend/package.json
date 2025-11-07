@@ -1,0 +1,45 @@
+{
+  "name": "dev-db-distribution-backend",
+  "version": "1.0.0",
+  "description": "Secure backend API for managing database export jobs to Azure Blob Storage.",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "node --loader ts-node/esm --experimental-specifier-resolution=node ./src/index.ts",
+    "build": "tsup src/index.ts --format cjs --dts --clean",
+    "start": "node dist/index.js",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
+    "seed": "ts-node prisma/seed.ts",
+    "test:health": "node -e \"fetch('http://localhost:8080/api/health/live').then(r=>r.text()).then(console.log)\""
+  },
+  "dependencies": {
+    "@azure/identity": "^3.3.2",
+    "@azure/storage-blob": "^12.17.0",
+    "@fastify/cors": "^9.0.1",
+    "@fastify/helmet": "^11.1.1",
+    "@fastify/sensible": "^5.4.0",
+    "@prisma/client": "^5.14.0",
+    "dotenv": "^16.4.5",
+    "fastify": "^4.27.0",
+    "fastify-plugin": "^4.5.1",
+    "fastify-type-provider-zod": "^1.1.8",
+    "jsonwebtoken": "^9.0.2",
+    "jwks-rsa": "^3.1.0",
+    "pino": "^8.19.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/node": "^20.12.7",
+    "@types/pino": "^7.0.5",
+    "prisma": "^5.14.0",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "tsup": "^7.2.0",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

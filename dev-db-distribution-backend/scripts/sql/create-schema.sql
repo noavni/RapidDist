@@ -1,0 +1,53 @@
+CREATE TABLE [dbo].[ServerReg] (
+    [Id] UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
+    [Name] NVARCHAR(255) NOT NULL,
+    [Dns] NVARCHAR(255) NOT NULL,
+    [IsActive] BIT NOT NULL DEFAULT 1,
+    [CreatedAt] DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT [PK_ServerReg] PRIMARY KEY ([Id]),
+    CONSTRAINT [UQ_ServerReg_Dns] UNIQUE ([Dns])
+);
+
+CREATE TABLE [dbo].[DatabaseReg] (
+    [Id] UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
+    [ServerId] UNIQUEIDENTIFIER NOT NULL,
+    [DbName] NVARCHAR(255) NOT NULL,
+    [IsActive] BIT NOT NULL DEFAULT 1,
+    [CreatedAt] DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT [PK_DatabaseReg] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_DatabaseReg_ServerReg] FOREIGN KEY ([ServerId]) REFERENCES [dbo].[ServerReg]([Id]) ON DELETE CASCADE,
+    CONSTRAINT [UQ_DatabaseReg_Server_DbName] UNIQUE ([ServerId], [DbName])
+);
+
+CREATE TABLE [dbo].[Job] (
+    [Id] UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
+    [Ticket] NVARCHAR(255) NOT NULL,
+    [Server] NVARCHAR(255) NOT NULL,
+    [Database] NVARCHAR(255) NOT NULL,
+    [RequestedBy] NVARCHAR(255) NOT NULL,
+    [Status] NVARCHAR(50) NOT NULL DEFAULT 'PENDING',
+    [BlobPath] NVARCHAR(1024) NULL,
+    [Etag] NVARCHAR(255) NULL,
+    [Sha256] NVARCHAR(64) NULL,
+    [Error] NVARCHAR(MAX) NULL,
+    [CreatedAt] DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    [UpdatedAt] DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    [CompletedAt] DATETIME2 NULL,
+    CONSTRAINT [PK_Job] PRIMARY KEY ([Id])
+);
+
+CREATE TABLE [dbo].[Download] (
+    [Id] UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
+    [JobId] UNIQUEIDENTIFIER NOT NULL,
+    [DownloadedBy] NVARCHAR(255) NOT NULL,
+    [IpAddress] NVARCHAR(64) NULL,
+    [UserAgent] NVARCHAR(512) NULL,
+    [When] DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    [Success] BIT NOT NULL DEFAULT 1,
+    CONSTRAINT [PK_Download] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_Download_Job] FOREIGN KEY ([JobId]) REFERENCES [dbo].[Job]([Id]) ON DELETE CASCADE
+);
+
+CREATE INDEX [IX_Job_Status_CreatedAt] ON [dbo].[Job] ([Status], [CreatedAt]);
+CREATE INDEX [IX_Job_Ticket] ON [dbo].[Job] ([Ticket]);
+CREATE INDEX [IX_Download_JobId_When] ON [dbo].[Download] ([JobId], [When]);

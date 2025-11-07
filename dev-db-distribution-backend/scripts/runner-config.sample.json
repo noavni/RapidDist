@@ -1,0 +1,10 @@
+{
+  "apiBase": "https://your-api.example.com",
+  "apiToken": "runner-secret-token",
+  "serverDns": "sql-prod-01",
+  "sqlInstance": "sql-prod-01\\MSSQLSERVER",
+  "localBackupDir": "D:\\backups",
+  "azCopyPath": "C:\\Program Files (x86)\\Microsoft SDKs\\Azure\\AzCopy\\AzCopy.exe",
+  "containerPrefix": "raw-backups",
+  "cleanupAfterUpload": true
+}
