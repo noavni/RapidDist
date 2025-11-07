@@ -3,6 +3,7 @@ import type { FastifyPluginAsync } from "fastify";
 import { prisma } from "../db/prisma.js";
 import { createDownloadLogSchema } from "../schemas/jobs.js";
 import { resolveRole } from "../auth/rbac.js";
+import { toDownloadDto } from "../utils/dto.js";
 
 const downloadsRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.post(
@@ -32,7 +33,7 @@ const downloadsRoutes: FastifyPluginAsync = async (fastify) => {
         },
       });
 
-      return { data: download };
+      return { data: toDownloadDto(download) };
     },
   );
 };

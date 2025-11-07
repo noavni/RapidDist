@@ -4,6 +4,7 @@ import { prisma } from "../db/prisma.js";
 import { idParamSchema } from "../schemas/common.js";
 import { updateDatabaseSchema } from "../schemas/servers.js";
 import { resolveRole } from "../auth/rbac.js";
+import { toDatabaseDto } from "../utils/dto.js";
 
 const databasesRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.patch(
@@ -18,12 +19,12 @@ const databasesRoutes: FastifyPluginAsync = async (fastify) => {
       const params = idParamSchema.parse(request.params);
       const body = updateDatabaseSchema.parse(request.body);
 
-      const database = await prisma.databaseReg.update({
+      const database = await prisma.database.update({
         where: { id: params.id },
         data: body,
       });
 
-      return { data: database };
+      return { data: toDatabaseDto(database) };
     },
   );
 };

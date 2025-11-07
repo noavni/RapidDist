@@ -13,6 +13,7 @@ import { resolveRole } from "../auth/rbac.js";
 import { buildBlobPath, getUserDelegationSasUrl, getWriteSasUrl } from "../storage/blob.js";
 import { env } from "../env.js";
 import { assertSha256 } from "../utils/checksum.js";
+import { toJobDto, toJobDtoList } from "../utils/dto.js";
 
 const RUNNER_UPLOAD_SAS_TTL_MINUTES = 60;
 
@@ -24,7 +25,7 @@ const jobsRoutes: FastifyPluginAsync = async (fastify) => {
       const body = createJobSchema.parse(request.body);
       const user = request.user!;
 
-      const server = await prisma.serverReg.findUnique({
+      const server = await prisma.server.findUnique({
         where: { id: body.serverId },
         include: { databases: true },
       });
@@ -77,7 +78,7 @@ const jobsRoutes: FastifyPluginAsync = async (fastify) => {
         where,
         orderBy: { createdAt: "desc" },
       });
-      return { data: jobs };
+      return { data: toJobDtoList(jobs) };
     },
   );
 
@@ -97,7 +98,7 @@ const jobsRoutes: FastifyPluginAsync = async (fastify) => {
         throw fastify.httpErrors.forbidden("Job access denied");
       }
 
-      return { data: job };
+      return { data: toJobDto(job) };
     },
   );
 
@@ -157,10 +158,10 @@ const jobsRoutes: FastifyPluginAsync = async (fastify) => {
 
         if (body.blobPath) {
           const destUrl = await getWriteSasUrl(blobPath, RUNNER_UPLOAD_SAS_TTL_MINUTES);
-          return { data: updated, destUrl, blobPath };
+          return { data: toJobDto(updated), destUrl, blobPath };
         }
 
-        return { data: updated, blobPath };
+        return { data: toJobDto(updated), blobPath };
       }
 
       if (body.status === "COMPLETED") {
@@ -191,7 +192,7 @@ const jobsRoutes: FastifyPluginAsync = async (fastify) => {
           },
         });
 
-        return { data: updated };
+        return { data: toJobDto(updated) };
       }
 
       if (body.status === "FAILED") {
@@ -205,7 +206,7 @@ const jobsRoutes: FastifyPluginAsync = async (fastify) => {
             error: body.error,
           },
         });
-        return { data: updated };
+        return { data: toJobDto(updated) };
       }
 
       throw fastify.httpErrors.badRequest("Unsupported status transition");
