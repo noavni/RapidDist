@@ -35,3 +35,21 @@ export interface Database {
 export interface ApiListResponse<T> {
   data: T;
 }
+
+export interface PaginatedResult<T> {
+  items: T[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface ApiPaginatedResponse<T> {
+  data: PaginatedResult<T>;
+}
+
+export interface ServerWithDatabases extends Server {
+  databases: Database[];
+  totalDatabases: number;
+  activeDatabases: number;
+}

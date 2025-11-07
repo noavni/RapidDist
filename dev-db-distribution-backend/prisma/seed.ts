@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const main = async () => {
-  const server = await prisma.serverReg.upsert({
+  const server = await prisma.server.upsert({
     where: { dns: "sql-sample-01" },
     update: {},
     create: {
